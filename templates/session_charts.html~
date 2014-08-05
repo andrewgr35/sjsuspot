@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.css" />
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization',
+       'version':'1','packages':['timeline','corechart']}]}"></script>    
+    <title></title>
+</head>
+<body id="{{ session.key.id }}">
+<div class="container">
+
+    <div class="navbar">
+        <div class="navbar-inner">
+            <a class="brand" href="#">SPOT</a>
+            <ul class="nav">
+                <li><a href="/">Home</a></li>
+                <li><a href="/sessions">Sessions</a></li>
+                <li><a href="/session/new">New Session</a></li>
+                <li><a href="/interactions">Interactions</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div align = "center">
+<b>Student actions timeline</b>
+<div id="StudentsActions" style="width: 900px; height: 100px;"></div>
+<b>Teacher actions timeline</b>
+<div id="TeacherActions" style="width: 900px; height: 100px;"></div>
+<b>Individual student actions timeline</b>
+<div id="IndStudentActions" style="width: 900px; height: 300px;"></div>
+</div>
+
+<div align = "center">
+<div id="ModesPie" style="width: 800px; height: 400px;"></div>
+<div id="StudentsPie" style="width: 800px; height: 400px;"></div>
+
+<div id="StudentActivityPie" style="width: 800px; height: 400px;"></div>
+<div id="TeacherActivityPie" style="width: 800px; height: 400px;"></div>
+<div id="StudentTeacherPie" style="width: 800px; height: 400px;"></div>
+</div>
+</body>
+<script type="text/javascript">
+
+// Call the chart functions (below) and draw them
+google.setOnLoadCallback(drawChartStudents);
+google.setOnLoadCallback(drawChartTeacher);
+google.setOnLoadCallback(drawChartIndStudents);
+google.setOnLoadCallback(drawChartModes);
+google.setOnLoadCallback(drawChartStudentsPie);
+google.setOnLoadCallback(drawChartStudentTeacherPie);
+google.setOnLoadCallback(drawChartStudentActivityPie);
+google.setOnLoadCallback(drawChartTeacherActivityPie);
+
+// Below generates the student (all) timeline
+function drawChartStudents() {
+  var container = document.getElementById('StudentsActions');
+  var chart = new google.visualization.Timeline(container);
+  var dataTable = new google.visualization.DataTable();
+  dataTable.addColumn({ type: 'string', id: 'Role' });
+  dataTable.addColumn({ type: 'string', id: 'Name' });
+  dataTable.addColumn({ type: 'date', id: 'Start' });
+  dataTable.addColumn({ type: 'date', id: 'End' });
+    
+student_colors_js = new Array();
+
+{% for entry in student_actions %} 
+  start_time = parseInt("{{entry.2}}");
+  end_time = parseInt("{{entry.3}}");
+  student_colors_js[{{ forloop.counter0 }}] = "{{entry.4}}";
+  dataTable.addRows([
+  ['Student Actions', "{{entry.1}}", new Date(0,0,0,0,0,start_time), new Date(0,0,0,0,0,end_time)],
+  ]);  
+{% endfor %}
+
+  var options = {
+    colors: student_colors_js,
+    timeline: {barLabelStyle: {fontSize: 14 }, showBarLabels: false },
+    avoidOverlappingGridLines: false
+  };
+
+  chart.draw(dataTable, options);
+}
+
+// Below generates the student (individual) timeline
+function drawChartIndStudents() {
+  var container = document.getElementById('IndStudentActions');
+  var chart = new google.visualization.Timeline(container);
+  var dataTable = new google.visualization.DataTable();
+  dataTable.addColumn({ type: 'string', id: 'Role' });
+  dataTable.addColumn({ type: 'string', id: 'Name' });
+  dataTable.addColumn({ type: 'date', id: 'Start' });
+  dataTable.addColumn({ type: 'date', id: 'End' });
+    
+ind_student_colors_js = new Array();
+
+{% for entry in ind_student_actions %} 
+  start_time = parseInt("{{entry.2}}");
+  end_time = parseInt("{{entry.3}}");
+  ind_student_colors_js[{{ forloop.counter0 }}] = "{{entry.4}}";
+  dataTable.addRows([
+  ["{{entry.0}}", "{{entry.1}}", new Date(0,0,0,0,0,start_time), new Date(0,0,0,0,0,end_time)],
+  ]);  
+{% endfor %}
+  var options = {
+    colors: ind_student_colors_js,
+    timeline: {barLabelStyle: {fontSize: 14 }, showBarLabels: false },
+    avoidOverlappingGridLines: false
+  };
+
+  chart.draw(dataTable, options);
+}
+
+// Below generates the teacher timeline
+function drawChartTeacher() {
+  var container = document.getElementById('TeacherActions');
+  var chart = new google.visualization.Timeline(container);
+  var dataTable = new google.visualization.DataTable();
+  dataTable.addColumn({ type: 'string', id: 'Role' });
+  dataTable.addColumn({ type: 'string', id: 'Name' });
+  dataTable.addColumn({ type: 'date', id: 'Start' });
+  dataTable.addColumn({ type: 'date', id: 'End' });
+    
+teacher_colors_js = new Array();
+{% for entry in teacher_actions %} 
+  start_time = parseInt("{{entry.2}}");
+  end_time = parseInt("{{entry.3}}");
+  teacher_colors_js[{{ forloop.counter0 }}] = "{{entry.4}}";
+  dataTable.addRows([
+  ['Teacher Actions', "{{entry.1}}", new Date(0,0,0,0,0,start_time), new Date(0,0,0,0,0,end_time)],
+    ]);  
+{% endfor %}
+
+  var options = {
+    colors: teacher_colors_js,
+    timeline: {barLabelStyle: {fontSize: 14 }, showBarLabels: false },
+    avoidOverlappingGridLines: false
+    };
+  chart.draw(dataTable, options);
+}
+// Draw modes pie chart
+      function drawChartModes() {
+		var mode_array = [['Class Mode', 'Time Spent']];
+		{% for item in mode_plot %}
+		mode_array[mode_array.length] = ["{{item.0}}",Number("{{item.1}}")]
+		{% endfor %}
+        var data = google.visualization.arrayToDataTable(mode_array);
+        var options = {
+          title: 'Time spent in different class modes'
+        };
+        var chart = new google.visualization.PieChart(document.getElementById('ModesPie'));
+        chart.draw(data, options);
+      }
+// Draw students pie chart
+      function drawChartStudentsPie() {
+		var student_array = [['Student', 'Number of participations']];
+		{% for item in student_plot %}
+		student_array[student_array.length] = ["{{item.0}}",Number("{{item.1}}")]
+		{% endfor %}
+        var data = google.visualization.arrayToDataTable(student_array);
+        var options = {
+          title: 'Number and percentage of student participation'
+        };
+        var chart = new google.visualization.PieChart(document.getElementById('StudentsPie'));
+        chart.draw(data, options);
+      }
+
+// Draw student teacher pie chart
+      function drawChartStudentTeacherPie() {
+		var student_teacher_array = [['Actor', 'Time Spent']];
+		{% for item in student_teacher_plot %}
+		student_teacher_array[student_teacher_array.length] = ["{{item.0}}",Number("{{item.1}}")]
+		{% endfor %}
+        var data = google.visualization.arrayToDataTable(student_teacher_array);
+        var options = {
+          title: 'Division between student and teacher activity'
+        };
+        var chart = new google.visualization.PieChart(document.getElementById('StudentTeacherPie'));
+        chart.draw(data, options);
+      }
+// Draw student activity pie chart
+      function drawChartStudentActivityPie() {
+		var student_activity_array = [['Interaction', 'Time Spent']];
+		var student_activity_colors = []
+		{% for item in student_activity_plot %}
+		student_activity_array[student_activity_array.length] = ["{{item.0.0}}",Number("{{item.1}}")]
+		student_activity_colors[student_activity_colors.length] = "{{item.0.1}}"
+		{% endfor %}
+        var data = google.visualization.arrayToDataTable(student_activity_array);
+        var options = {
+		  colors: student_activity_colors,
+          title: 'Student Activity'
+        };
+        var chart = new google.visualization.PieChart(document.getElementById('StudentActivityPie'));
+        chart.draw(data, options);
+      }
+// Draw teacher activity pie chart
+      function drawChartTeacherActivityPie() {
+		var teacher_activity_array = [['Interaction', 'Time Spent']];
+		var teacher_activity_colors = []
+		{% for item in teacher_activity_plot %}
+		teacher_activity_array[teacher_activity_array.length] = ["{{item.0.0}}",Number("{{item.1}}")]
+		teacher_activity_colors[teacher_activity_colors.length] = "{{item.0.1}}"
+		{% endfor %}
+        var data = google.visualization.arrayToDataTable(teacher_activity_array);
+        var options = {
+		  colors: teacher_activity_colors,
+          title: 'Teacher Activity'
+        };
+        var chart = new google.visualization.PieChart(document.getElementById('TeacherActivityPie'));
+        chart.draw(data, options);
+      }
+</script>
+</html>

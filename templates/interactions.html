@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.css" />
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <title></title>
+</head>
+<body>
+<div class="container">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <a class="brand" href="#">SJSU Riot</a>
+            <ul class="nav">
+                <li><a href="/">Home</a></li>
+                <li><a href="/sessions">Sessions</a></li>
+                <li><a href="/session/new">New Session</a></li>
+                <li class="active"><a href="/interactions" style="display:none;">Interactions</a></li>
+                <li><a href="/contact">Contact Us</a></li>
+                <li><a href="/logout">Log Out</a></li>
+            </ul>
+        </div>
+    </div>
+    <h2>Interaction Groups/Items</h2>
+    <button id = "load" type="button" class="btn btn-primary"> Load Defaults </button>
+	<table>
+	<tr>
+	<td>
+    <div align ="left" style="margin-top: 10px; margin-bottom: 50px;">
+        <a href="#createModal" role="button" class="btn btn-primary" data-toggle="modal" style="display:none;">Create New Interaction Group</a>
+    </div>
+	</td>
+	<td>
+    <div align = "right" style="margin-top: 10px; margin-bottom: 50px;">
+        <a href="#removeModal" role="button" class="btn btn-primary" data-toggle="modal" style="display:none;">Remove Interaction Group</a>
+    </div>
+	</td>
+	<td>    <div align = "right" style="margin-top: 10px; margin-bottom: 50px;">
+        <a href="#" id="removeAll" role="button" class="btn btn-primary">Remove All Interaction Groups</a>
+    </div></td>
+	</tr>
+	</table>
+    <div id="interactionSection">
+        {% if interactions %}
+            {% for interaction in interactions %}
+                <div class="well" style="margin-top: 40px;">
+                    <h4>{{ interaction.group.name }}</h4>
+                </div>
+                {% if interaction.items %}
+                    {% for item in interaction.items %}
+                        <div>{{ item.name }}</div>
+                    {% endfor %}
+                {% else %}
+                    <div>you have no interaction items</div>
+                {% endif %}
+                <div style="margin-top: 10px;" class="pull-right">
+                    <a href="#createItemModal" role="button" class="newInteractionItem btn" data-toggle="modal" interactionGroup="{{ interaction.group.key.id }}" style="display:none;">New Interaction Item</a>
+                </div>
+                <div id = "{{ interaction.group.key.id }}" style="margin-top: 10px;" class="pull-right">
+                    <a href="#removeItemModal" role="button" class="removeInteractionItem btn" data-toggle="modal" interactionGroup="{{ interaction.group.key.id }}" style="display:none;">Remove Interaction Item</a>
+                </div>
+                <div style="clear: right;">&#32;</div>
+            {% endfor %}
+        {% else %}
+            <h4>You have no interactions</h4>
+        {% endif %}
+    </div>
+
+	
+
+    <!-- new interaction group modal -->
+    <div id="createModal" class="modal hide fade">
+        <div class="modal-header">
+            <h4>Create new interaction group</h4>
+        </div>
+        <div class="modal-body">
+            <label for="newInteractionGroupName" >Name:</label>
+            <input id="newInteractionGroupName" type="text" />
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button id="createGroupBtn" type="button" class="btn btn-primary" data-loading-text="Saving..." >Create</button>
+        </div>
+	</div>
+	<!-- remove interaction group modal -->
+	<div id="removeModal" class ="modal hide fade">
+		<div class="modal-header">
+			<h4> Which interaction group would you like to remove? </h4>
+		</div>
+        <div>
+            {% if interactions %}
+            <div id="removeSection" class="well" style="margin-top: 40px;">
+                {% for interaction in interactions %}
+                    <button groupName="{{ interaction.group.name }}" type="button" class="btn btn-small btn-primary" >{{ interaction.group.name }}</button>
+                {% endfor %}
+            </div>
+            {% else %}
+                <h4>You have no interaction Groups to Remove</h4>
+            {% endif %}                    
+        </div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+		</div> 
+    </div>
+
+    <!-- new interaction item modal -->
+    <div id="createItemModal" class="modal hide fade">
+        <div class="modal-header">
+            <h4>Create new interaction item</h4>
+        </div>
+        <div class="modal-body">
+            <label for="newInteractionItemName">Name:</label>
+            <input id="newInteractionItemName" type="text" />
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button id="createItemBtn" type="button" class="btn btn-primary" data-loading-text="Saving..." >Create</button>
+        </div>
+    </div>
+    <!-- remove interaction item modal -->
+    <div id="removeItemModal" class="modal hide fade">
+        <div class="modal-header">
+            <h4>Which interaction item would you like to remove?</h4>
+        </div>
+        <div class="modal-body">
+        {% for interaction in interactions %}
+            {% if interaction.items %}
+            <div id="removeItemSection" class="well" style="margin-top: 40px;">
+                {% for item in interaction.items %}
+                    <h4>{{ interaction.group.name }}</h4>
+                    <button itemId = "{{item.key.id}}" parentId ="{{ interaction.group.key.id }}" itemName="{{ item.name }}" type="button" class="btn btn-small btn-primary" >{{ item.name }}</button>
+                {% endfor %}
+            </div>
+            {% else %}
+                <h4>You have no interaction Items to remove from {{ interaction.group.name }}</h4>
+            {% endif %}
+        {% endfor %}
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        </div>
+    </div>
+
+</div>
+<div style="padding-bottom: 75pt;"></div> 
+<div align = "center"><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/InteractiveResource" property="dct:title" rel="dct:type">SJSU Real-time Instructor Observing Tool (RIOT)</span> by <br> <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.sjsu.edu/people/cassandra.paul/per/" property="cc:attributionName" rel="cc:attributionURL">Cassandra Paul & Andrew Reid</a> is licensed under a <br> <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_US">Creative Commons Attribution-ShareAlike 3.0 Unported <br> License</a>.<br />Based on a work at <a xmlns:dct="http://purl.org/dc/terms/" href="sjsuriot.appspot.com" rel="dct:source">sjsuriot.appspot.com</a></div> 
+<script type="text/javascript">
+    $('document').ready(function() {
+        $('#removeSection .btn').click(function() {
+            var $this = $(this);
+            var groupName = $this.attr('groupName');
+                $.ajax({
+                    url: "/interaction/group/remove",
+                    type: "POST",
+                    data: {"removeName":groupName},
+                    dataType: "json"
+                }).done(function(data) {
+                    if(data.error) {
+                        alert(data.error);
+                    } else {
+                        window.location.reload();
+                    }
+                });
+            });
+        $('#removeAll').click(function() {
+            var $this = $(this);
+                $.ajax({
+                    url: "/interaction/group/remove/all",
+                    type: "POST"
+                }).done(function(data) {
+                        window.location.reload();
+                });
+		return false;
+            });
+        $('#removeItemSection .btn').click(function() {
+            var $this = $(this);
+            var removeInteractionItemName = $this.attr('itemName');
+            var removeInteractionItemId = $this.attr('itemId');
+            var removeInteractionParentId = $this.attr('parentId');
+                $.ajax({
+                    url: "/interaction/item/remove",
+                    type: "POST",
+                    data: {"removeInteractionItemName":removeInteractionItemName,"removeInteractionItemId":removeInteractionItemId,"removeInteractionParentId":removeInteractionParentId },
+                    dataType: "json"
+                }).done(function(data) {
+                    if(data.error) {
+                        alert(data.error);
+                    } else {
+                        window.location.reload();
+                    }
+                });
+            });
+        $('#load').click(function() {
+            $.ajax({
+            url: "/interaction/group/default",
+            type: "POST",
+            dataType: "json"
+        }).done(function() {
+                window.location.reload();
+        });
+        });
+        $('#createGroupBtn').click(function() {
+            var name = $.trim($('#newInteractionGroupName').val());
+            if(name.length == 0) {
+                alert("You must enter a group interaction name");
+            } else {
+                $.ajax({
+                    url: "/interaction/group/new",
+                    type: "POST",
+                    data: {"name":name},
+                    dataType: "json"
+                }).done(function(data) {
+                    if(data.error) {
+                        alert(data.error);
+                    } else {
+                        window.location.reload();
+                    }
+                });
+            }
+        });
+
+        $('#interactionSection .newInteractionItem').click(function() {
+            var parentKey = $(this).attr('interactionGroup');
+            $('#createItemModal').attr('interactionGroupId', parentKey);
+        });
+
+        $('#createItemBtn').click(function() {
+            var parentId = $('#createItemModal').attr('interactionGroupId');
+            var name = $.trim($('#newInteractionItemName').val());
+            if(name.length == 0) {
+                alert("You must enter a interaction item name");
+            } else {
+                $.ajax({
+                   url: "/interaction/item/new",
+                   type: "POST",
+                   data: {"name":name, "parentId": parentId},
+                   dataType: "json"
+               }).done(function(data) {
+                   $('#createItemModal').attr('interactionGroupId', '');
+                   $('#newInteractionItemName').val('');
+                   if(data.error) {
+                       alert(data.error);
+                   } else {
+                       window.location.reload();
+                   }
+                });
+            }
+
+        });
+    });
+</script>
+</body>
+</html>

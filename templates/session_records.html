@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.css" />
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <title></title>
+</head>
+<body id="{{ session.key.id }}">
+<div class="container" style="margin-bottom: 50px;">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <a class="brand" href="#">SPOT</a>
+            <ul class="nav">
+                <li><a href="/">Home</a></li>
+                <li><a href="/sessions">Sessions</a></li>
+                <li><a href="/session/new">New Session</a></li>
+                <li><a href="/interactions">Interactions</a></li>
+            </ul>
+        </div>
+    </div>
+
+    {% if session %}
+        <h3>Session: {{ session.observee }} - {{ session.date }}</h3>
+        
+        {% if session_records %}
+            <button type="button" id = "export-btn" class="btn btn-primary" style="margin-top: 20px;margin-bottom: 20px;">Export to CSV</button>
+            <div><a class="btn btn-primary" id = "charts-btn">Session Charts</a></div>
+            <table class="table table-striped table-bordered">
+			<p>  </p>
+                <thead>
+                    <th>Actor</th>
+                    <th>Class mode</th>
+                    <th>Interaction</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Total Seconds</th>
+                </thead>
+                <tbody>
+                    {% for sr in session_records %}
+                        <tr>
+                            <td>{{ sr.actor }}</td>
+                            <td>{{ sr.mode }}</td>
+                            <td>{{ sr.interactionItem.name }}</td>
+                            <td>{{ sr.startTime }}</td>
+                            <td>{{ sr.endTime }}</td>
+                            <td>{{ sr.totalSeconds}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+	    
+            <table class="table table-fluid table-striped table-bordered">
+            <thead>
+            <th> Comment </th>
+            <th> Comment Time </th>
+            </thead>
+            <tbody>
+            {% for note in session_notes %}
+            <tr>
+                <td>{{note.0}}</td>
+                <td>{{note.1}}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+	    
+        {% else %}
+            <p>No session records for this session</p>
+        {% endif %}
+    {% endif %}
+
+</body>
+<script type="text/javascript">
+    $('document').ready(function() {
+        var sessionId = $('body').attr('id');
+            $('#export-btn').click(function() {
+            window.location.href = "/session/csv/" + sessionId;
+            // stop sessions 
+            $.ajax({
+                url: "/session/csv/" + sessionId,
+                type: "POST",
+                dataType: "json"
+            }).done(function(data) {
+                window.location.href = "/session/csv/" + sessionId;
+            });
+            });
+            $('#charts-btn').click(function() {
+            window.location.href = "/session/charts/" + sessionId;
+            // stop sessions 
+            $.ajax({
+                url: "/session/charts/" + sessionId,
+                type: "POST",
+                dataType: "json"
+            }).done(function(data) {
+                window.location.href = "/session/charts/" + sessionId;
+            });
+            });            
+    });
+</script>
+</html>

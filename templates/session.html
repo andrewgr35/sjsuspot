@@ -1,0 +1,397 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.css" />
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <title></title>
+</head>
+<body id="{{ session.key.id }}">
+
+<div class = "container">
+<!-- start of container -->
+
+    <div class="navbar">
+        <div class="navbar-inner">
+            <a class="brand" href="#">SPOT</a>
+            <ul class="nav">
+                <li><a href="/">Home</a></li>
+                <li><a href="/sessions">Sessions</a></li>
+                <li><a href="/session/new">New Session</a></li>
+                <li><a href="/interactions">Interactions</a></li>
+            </ul>
+        </div>
+    </div>
+
+    {% if session %}
+    <table width="940">
+        <tr>
+            <td align="left"><h3>Session: {{ session.observee }} &nbsp;&nbsp;&nbsp;</h3></td>
+            <td align="right"><h3 id = "startTime"></h3></td>
+        </tr>
+    </table>
+    {% endif %}
+
+    <div align="center" style="margin-bottom: 20px;">
+        <button type="button" id="endSessionBtn" class="btn btn-primary">End Session</button>
+    </div>
+
+    <div class="well"  id="modes">
+    <h4 align = "center">Class mode</h4>
+    <table align="center" width = "850">
+    <tr>
+        <td align = "center"><button class="btn btn-medium btn-primary" modeId="wg">Whole class</button><td>
+	<td align = "center"><button class="btn btn-medium btn-primary" modeId="sg">Small group/Pairs</button><td>
+	<td align = "center"><button class="btn btn-medium btn-primary" modeId="i">Individual</button><td>
+    </tr>
+    <tr>
+	<td align = "center"><b>Teacher in charge <br> of instruction</b><td>
+	<td align = "center"><b>Students working in <br> groups of 2-10</b><td>
+	<td align = "center"><b><br>Students working <br> independent of <br> teacher or peers</b><td>
+    </tr>
+    </table>
+    </div>
+
+{% if students %}
+<div class="well">
+<table width="900" align="center">
+<tr>
+<td valign="top">
+<div id="teacheractions" style="float:left;">
+<div align = "center">
+<h4>Teacher Actions</h4>
+<table width = "350">
+{% for interaction in interactions %}
+    {% if interaction.items %}
+        {% for item in interaction.items %}
+            {% if item.parent.name == "Teacher Actions" %}
+            <tr>
+                <td align = "center"><button class="btn btn-small {{item.color}}" btnClass="{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" id="Teacher" style="width: 150px;">{{ item.name }}</button></td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endfor %}
+</table>
+</div>
+</div>
+</td>
+<td valign="top">
+<div style="float:right;">
+    
+    <table align="right">
+        <tr>
+            <td><p>Estimated number of students:&nbsp;</p></td>
+            <td><textarea style="width: 30px; height: 20px;" id="numberofstudents"></textarea></td>
+        </tr>
+    </table>
+    
+    <div id = "gridheader"> 
+    <h4 style="float:left;">Student actions</h4>
+    <table style="float:right;">
+    {% for interaction in interactions %}
+        {% if interaction.items %}
+            {% for item in interaction.items %}
+                {% if item.name == "Shout out" or item.name == "Choral response" %}
+                    <tr>
+                        <td><button class="btn btn-small {{item.color}}" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" id="Students" style="width: 120px;">{{ item.name }}</button></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %} 
+    </table>  
+    </div>
+    
+    <table align = "center" bgcolor="#FFFFFF" id="actorgrid"> 
+    {% for row in students %}
+        <tr>
+        {% for student in row %}
+            <td><button class="btn btn-small" id = "{{student}}" href="#interaction_modal" data-toggle="modal" style="width: 32px;">&nbsp;</button></td>
+        {% endfor %}
+        </tr>
+    {% endfor %}
+    </table>
+</div> 
+</td>
+{% endif %}
+</tr>
+</table>
+</div>
+
+
+<div id = "logger" class="well">    
+<div id="comment" align="center">
+    <form>
+	<div style="width: 750px; height: 150px;">
+	<h4>Session log</h4>
+	<textarea style="width: 700px; height: 100px;" id="commentId"></textarea>
+	</div>
+    </form>
+</div>
+<div id="addNote" align="center">
+    <form>
+	<div style="width: 750px; height: 150px;">
+	<h4>Add note</h4>
+	<textarea style="width: 700px; height: 40px;" id="note"></textarea>
+	<button type="button" id="submitNote" class="btn btn-primary">submit</button>
+	</div>
+    </form>
+</div>
+</div>
+</div>
+
+<div class="modal fade" id="session_start">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3>Getting started...</h3>
+  </div>
+  <div class="modal-body">
+  <p>To begin, close this window and choose a <b>class mode</b></p>
+  </div>
+</div>
+
+
+<div class="modal fade" id="interaction_modal">
+
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3 id = "intTitle">Interactions</h3>
+  </div>
+
+  <div class="modal-body">
+  <table align="center">
+  {% for interaction in interactions %}
+    {% if interaction.items %}
+        {% for item in interaction.items %}
+           {% if item.name != "Choral response" and item.name != "Shout out" %}
+	    <tr>
+	    <td>
+            <button class="btn btn-small {{item.color}}" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" style="width: 150px;">{{ item.name }}</button>
+	    </td>
+	    </tr>
+           {% endif %}
+        {% endfor %}
+    {% endif %}
+  {% endfor %}
+  </table>
+  </div> 
+
+</div>
+
+<!-- end of container -->
+
+</body>
+<script type="text/javascript">
+    $('document').ready(function() {
+    var sessionId = $('body').attr('id');
+	var textbox = '';
+	var textArea = $('#commentId');
+    
+    // Display alert on session start to prompt user to select a class mode
+    $('#session_start').modal('show');
+    $('#interaction_modal').modal('show');
+    $('#interaction_modal').modal('hide');
+    
+    // Create the dictionary to store student counts, this is a copy of the one actually stored in the database. This is made to display counts on the buttons.
+    var sessioncounts = {};
+    
+	// Create session start time
+	var date = new Date();
+    var year = date.getFullYear()
+    var day = date.getDate()
+    var month = date.getMonth() + 1
+	var hours = date.getHours()
+	var minutes = date.getMinutes()
+    if(minutes <=9){
+        minutes = '0'+minutes };
+    if(hours > 12){
+        hours = hours - 12;
+	    var time = month+'/'+day+'/'+year+' '+hours+":"+minutes+" pm";
+    }else if (hours == 12){
+        var time = month+'/'+day+'/'+year+' '+hours+":"+minutes+" pm";
+    }else{
+        var time = month+'/'+day+'/'+year+' '+hours+":"+minutes+" am";
+    };
+    document.getElementById("startTime").innerHTML=time;
+
+        
+    mode = 'NA';
+    actor = 'NA';
+    
+        // This code toggles interaction buttons (so you only see mode-specific interactions in pop up window)
+        $('#actorgrid .btn').click(function() {
+            var $this = $(this);
+            $(this).addClass('btn-danger');
+            actor = $this.attr('id'); 
+            
+            // Store counts in the dictionary
+            if (actor in sessioncounts){
+                sessioncounts[actor] += 1;
+            document.getElementById(actor).innerHTML=sessioncounts[actor];    
+            } else {
+            sessioncounts[actor] = 1;
+            document.getElementById(actor).innerHTML=sessioncounts[actor];
+            }
+            
+            // Send the actor (student id) to the count handler (stores counts in dict)
+            $.ajax({
+                url: "/session/count/" + sessionId,
+                type: "POST",
+                data: { "actor": actor},
+                dataType: "json"
+            });
+  
+            if(mode == 'wg'){
+                $('#interaction_modal .btn').each(function() {
+                var $this = $(this);
+                    if($this.attr('grp_name')=="Whole Group"){
+                        document.getElementById("intTitle").innerHTML="Whole Class Interactions";
+                        $this.show();
+                    }                   
+                    if($this.attr('grp_name')!="Whole Group"){
+                        $this.hide();
+                    }
+                }); 
+            } else if(mode=='i'){
+                $('#interaction_modal .btn').each(function() {
+                var $this = $(this);
+                    if($this.attr('grp_name')=="Individual"){
+                        document.getElementById("intTitle").innerHTML="Individual Actions";
+                        $this.show();
+                    }                
+                    if($this.attr('grp_name')!="Individual"){
+                        $this.hide();
+                    }
+                });            
+            } else if(mode=='sg'){
+                $('#interaction_modal .btn').each(function() {
+                var $this = $(this);
+                    if($this.attr('grp_name')=="Small group/ pairs"){
+                        document.getElementById("intTitle").innerHTML="Small Group Interactions";
+                        $this.show();
+                    }                    
+                    if($this.attr('grp_name')!="Small group/ pairs"){
+                        $this.hide();
+                    }
+                });            
+            }
+        }); 
+
+        // Mode switches
+        $('#modes .btn').click(function() {
+
+        var $this = $(this);
+        var modeId = $this.attr('modeId');
+        if($this.hasClass('btn-primary')) {  
+        $('#modes .btn-success').each(function() {
+            
+            var $this = $(this);
+            $this.removeClass('btn-success').addClass('btn-primary');
+        });    
+        
+            $this.removeClass('btn-primary').addClass('btn-success');
+            mode = modeId;
+        }
+        else if($this.hasClass('btn-success')) {
+            $this.removeClass('btn-success').addClass('btn-primary');
+        }
+        });	
+        
+        $('#interaction_modal .btn, #gridheader .btn, #teacheractions .btn').click(function() {
+        var $this = $(this);
+        $('#interaction_modal').modal('hide');
+        
+	    // Get date, create time variable
+	    var date = new Date();
+	    var hours = date.getHours()
+	    var minutes = date.getMinutes()
+	    var seconds = date.getSeconds()
+	    var time = hours+":"+minutes+":"+seconds
+	    
+	    // Get button ID's 
+        var groupId = $this.attr('groupId');
+        var itemId = $this.attr('itemId');
+	    var int_name = $this.attr('int_name');
+	    var grp_name = $this.attr('grp_name');
+	    var btnClass = $this.attr('btnClass');
+	    
+		// add next session log entry, scroll to bottom of box
+        if(grp_name == "Teacher Actions"){
+		actor = $this.attr('id');
+		textbox += time+':'+"Teacher"+'-'+grp_name+'-'+int_name+'\n'
+        }
+        else if(int_name == "Choral response") {
+		actor = $this.attr('id');
+        textbox += time+':'+"Whole class"+'-'+grp_name+'-'+int_name+'\n'
+        }
+        else if(int_name == "Shout out") {
+		actor = $this.attr('id');
+        textbox += time+':'+"Whole class"+'-'+grp_name+'-'+int_name+'\n'
+        }        
+        else {
+        textbox += time+':'+actor+'-'+grp_name+'-'+int_name+'\n'
+        }
+		$("#commentId").val(textbox);
+		textArea.scrollTop( textArea[0].scrollHeight - textArea.height()   );	               
+                
+		// Un-select any active buttons (w/ btn-danger class)
+        $('#interaction_modal .btn-danger, #gridheader .btn-danger, #teacheractions .btn-danger').each(function() {
+            var oldbtnClass = $(this).attr('btnClass');
+            $(this).removeClass('btn-danger').addClass(oldbtnClass);
+        });          
+        
+        // activate record
+        $.ajax({
+            url: "/session/record/" + sessionId,
+            type: "POST",
+            data: {"groupId": groupId, "itemId": itemId, "actor": actor, "mode":mode, "color":btnClass},
+            dataType: "json"
+            });
+            
+        // Change button to red when clicked (btn-danger class)    
+        $this.removeClass(btnClass).addClass('btn-danger');
+        });
+
+        $('#endSessionBtn').click(function() {
+            var numstud = $('#numberofstudents').val();
+            // stop sessions 
+            $.ajax({
+                url: "/session/stop/" + sessionId,
+                type: "POST",
+                data: { "numstud": numstud},
+                dataType: "json"
+            }).done(function(data) {
+                window.location.href = "/session/records/" + sessionId;
+            });
+        });
+	
+        $('#submitNote').click(function() {
+	    var note = $('#note').val();
+	    // Get date, create time variable
+	    var date = new Date();
+	    var hours = date.getHours()
+	    var minutes = date.getMinutes()
+	    var seconds = date.getSeconds()
+	    var time = hours+":"+minutes+":"+seconds
+
+		// add next session log entry, scroll to bottom of box
+		textbox += time+':'+' '+note+'\n'
+		$("#commentId").val(textbox);
+		textArea.scrollTop( textArea[0].scrollHeight - textArea.height()   );        
+        
+        
+            $.ajax({
+                url: "/session/submit/" + sessionId,
+                type: "POST",
+                data: {"note": note, "time": time},
+                dataType: "json"
+            }).done(function(data) {
+                $("#note").val('');
+            });
+        });
+	
+    });
+</script>
+</html>

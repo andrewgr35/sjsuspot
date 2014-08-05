@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.css" />
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <title></title>
+</head>
+<body id="{{ session.key.id }}">
+<div class = "container">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <a class="brand" href="#">SPOT</a>
+            <ul class="nav">
+                <li><a href="/">Home</a></li>
+                <li><a href="/sessions">Sessions</a></li>
+                <li><a href="/session/new">New Session</a></li>
+                <li><a href="/interactions">Interactions</a></li>
+            </ul>
+        </div>
+    </div>
+
+    {% if session %}
+        <h3>Session: {{ session.observee }} - {{ session.date }}</h3>
+    <div align="center" style="margin-bottom: 20px;">
+        <button type="button" id="endSessionBtn" class="btn btn-primary">End Session</button>
+    </div>
+
+    <div id="interactionSection" class="well">
+        {% if interactions %}
+	    <table align = "center" style="background-color:white; position:absolute;left:1000px;top:230px;">
+	    <tr>
+            {% for interaction in interactions %}
+	    {% if forloop.counter == 6 or forloop.counter == 11 or forloop.counter == 16 or forloop.counter == 21 or forloop.counter == 26 or forloop.counter == 31%}
+		<tr>
+	    {% endif %}
+	    <td>
+	    <div class = "btn-group">
+		    <a data-toggle="dropdown" class="btn dropdown-toggle" style="width:30px;">{{ interaction.group.name }}<b class="caret"></b></a>
+			<ul class="dropdown-menu">
+			    {% if interaction.items %}
+				{% for item in interaction.items %}
+				    <li>
+					<button class="btn btn-small btn-success" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}">{{ item.name }}</button>
+				    </li>
+				{% endfor %}
+			    {% else %}
+				<div>no interaction items for this group</div> 	
+			    {% endif %}
+			</ul>
+	    </div>
+	    </td>
+            {% endfor %}
+	    </tr>
+            {% else %}
+		<h4>You have no interactions</h4>
+	    </table>
+        {% endif %}
+    {% else %}
+        <h2>No Session with given id</h2>
+    {% endif %}  
+    </div>
+    
+<div id="comment" style="float:top;">
+    <form>
+	<div style="width: 325px; height: 150px;">
+	<p><b>Session Log:</b></p>
+	<textarea style="width: 300px; height: 100px;" id="commentId"></textarea>
+	</div>
+    </form>
+</div>
+
+<div id="addNote" style="float:bottom;">
+    <form>
+	<div style="width: 325px; height: 150px;">
+	<p><b>Add Note:</b></p>
+	<textarea style="width: 300px; height: 40px;" id="note"></textarea>
+	<button type="button" id="submitNote" class="btn btn-primary">submit</button>
+	</div>
+    </form>
+</div>
+
+
+</div>
+
+</body>
+<script type="text/javascript">
+    $('document').ready(function() {
+        var sessionId = $('body').attr('id');
+	var textbox = '';
+	var textArea = $('#commentId');
+	
+        $('#interactionSection .btn').click(function() {
+            var $this = $(this);
+
+	    // Get date, create time variable
+	    var date = new Date();
+	    var hours = date.getHours()
+	    var minutes = date.getMinutes()
+	    var seconds = date.getSeconds()
+	    var time = hours+":"+minutes+":"+seconds
+	    
+	    // Get button ID's 
+            var groupId = $this.attr('groupId');
+            var itemId = $this.attr('itemId');
+	    var int_name = $this.attr('int_name');
+	    var grp_name = $this.attr('grp_name');
+	    
+	    
+            if($this.hasClass('btn-success')) {
+
+		// add next session log entry, scroll to bottom of box
+		textbox += time+':'+' '+grp_name+' '+int_name+'\n'
+		$("#commentId").val(textbox);
+		textArea.scrollTop( textArea[0].scrollHeight - textArea.height()   );
+		
+		// Un-select any active buttons (w/ btn-danger class)
+                $('#interactionSection .btn-danger').each(function() {
+                    $(this).removeClass('.btn-danger').addClass('btn-success');
+                });
+                // activate record
+                $.ajax({
+                    url: "/session/record/" + sessionId,
+                    type: "POST",
+                    data: { "groupId": groupId, "itemId": itemId},
+                    dataType: "json"
+                });
+                $this.removeClass('btn-success').addClass('btn-danger');
+            } else if($this.hasClass('btn-danger')) {
+                // stop session record
+                $.ajax({
+                   url: "/session/stop/" + sessionId,
+                   type: "POST",
+                   dataType: "json"
+                 });
+                $this.removeClass('btn-danger').addClass('btn-success');
+            }
+        });
+
+        $('#endSessionBtn').click(function() {
+            // stop sessions 
+            $.ajax({
+                url: "/session/stop/" + sessionId,
+                type: "POST",
+                dataType: "json"
+            }).done(function(data) {
+                window.location.href = "/session/records/" + sessionId;
+            });
+        });
+	
+        $('#submitNote').click(function() {
+	    var note = $('#note').val();
+	    // Get date, create time variable
+	    var date = new Date();
+	    var hours = date.getHours()
+	    var minutes = date.getMinutes()
+	    var seconds = date.getSeconds()
+	    var time = hours+":"+minutes+":"+seconds
+            $.ajax({
+                url: "/session/submit/" + sessionId,
+                type: "POST",
+		data: {"note": note, "time": time},
+                dataType: "json"
+            }).done(function(data) {
+                $("#note").val('');
+            });
+        });
+	
+    });
+</script>
+</html>
