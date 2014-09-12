@@ -32,10 +32,16 @@
         </tr>
     </table>
     {% endif %}
-
-    <div align="center" style="margin-bottom: 20px;">
-        <button type="button" id="endSessionBtn" class="btn btn-primary">End Session</button>
-    </div>
+    
+    <table align="center">
+    	<tr>
+		<td align = "left"><p>Estimated number of students:&nbsp;</p></td>
+		<td align = "left"><textarea style="width: 30px; height: 20px;" id="numberofstudents"></textarea></td>
+	</tr>
+	    	<div align="center" style="margin-bottom: 20px;">
+	        	<button type="button" id="endSessionBtn" class="btn btn-primary">End Session</button>
+	    	</div>
+    </table>
 
     <div class="well"  id="modes">
     <h4 align = "center">Class mode</h4>
@@ -79,14 +85,6 @@
 </td>
 <td valign="top">
 <div style="float:right;">
-    
-    <table align="right">
-        <tr>
-            <td><p>Estimated number of students:&nbsp;</p></td>
-            <td><textarea style="width: 30px; height: 20px;" id="numberofstudents"></textarea></td>
-        </tr>
-    </table>
-    
     <div id = "gridheader"> 
     <h4 style="float:left;">Student actions</h4>
     <table style="float:right;">
