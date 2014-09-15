@@ -106,11 +106,29 @@
     {% for row in students %}
         <tr>
         {% for student in row %}
-            <td><button class="btn btn-small" id = "{{student}}" href="#interaction_modal" data-toggle="modal" style="width: 32px;">&nbsp;</button></td>
+            <td>
+<div class="dropdown">
+<button class="btn btn-small dropdown-toggle" id = "{{student}}" data-toggle="dropdown" style="width: 32px;">&nbsp;</button>
+  <ul class="dropdown-menu" role="menu">
+
+  {% for interaction in interactions %}
+    {% if interaction.items %}
+        {% for item in interaction.items %}
+           {% if item.name != "Choral response" and item.name != "Shout out" %}
+            		<button class="btn btn-small {{item.color}} interaction" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" style="width: 150px;">{{ item.name }}</button>
+           {% endif %}
+        {% endfor %}
+    {% endif %}
+  {% endfor %}
+
+  </ul>
+</div>
+			</td>
         {% endfor %}
         </tr>
     {% endfor %}
     </table>
+
 </div> 
 </td>
 {% endif %}
@@ -133,7 +151,7 @@
 	<div style="width: 750px; height: 150px;">
 	<h4>Add note</h4>
 	<textarea style="width: 700px; height: 40px;" id="note"></textarea>
-	<button type="button" id="submitNote" class="btn btn-primary">submit</button>
+	<button type="button" id="submitNote" class="btn btn-primary">submit note</button>
 	</div>
     </form>
 </div>
@@ -150,32 +168,6 @@
   </div>
 </div>
 
-
-<div class="modal fade" id="interaction_modal">
-
-  <div class="modal-header">
-    <a class="close" data-dismiss="modal">&times;</a>
-    <h3 id = "intTitle">Interactions</h3>
-  </div>
-
-  <div class="modal-body">
-  <table align="center">
-  {% for interaction in interactions %}
-    {% if interaction.items %}
-        {% for item in interaction.items %}
-           {% if item.name != "Choral response" and item.name != "Shout out" %}
-	    <tr>
-	    <td>
-            <button class="btn btn-small {{item.color}}" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" style="width: 150px;">{{ item.name }}</button>
-	    </td>
-	    </tr>
-           {% endif %}
-        {% endfor %}
-    {% endif %}
-  {% endfor %}
-  </table>
-  </div> 
-
 </div>
 
 <!-- end of container -->
@@ -189,8 +181,6 @@
     
     // Display alert on session start to prompt user to select a class mode
     $('#session_start').modal('show');
-    $('#interaction_modal').modal('show');
-    $('#interaction_modal').modal('hide');
     
     // Create the dictionary to store student counts, this is a copy of the one actually stored in the database. This is made to display counts on the buttons.
     var sessioncounts = {};
@@ -219,7 +209,7 @@
     actor = 'NA';
     
         // This code toggles interaction buttons (so you only see mode-specific interactions in pop up window)
-        $('#actorgrid .btn').click(function() {
+        $('#actorgrid .dropdown-toggle').click(function() {
             var $this = $(this);
             $(this).addClass('btn-danger');
             actor = $this.attr('id'); 
@@ -242,37 +232,34 @@
             });
   
             if(mode == 'wg'){
-                $('#interaction_modal .btn').each(function() {
-                var $this = $(this);
+                $('.interaction').each(function() {
+                var $this = $(this);                 
                     if($this.attr('grp_name')=="Whole Group"){
-                        document.getElementById("intTitle").innerHTML="Whole Class Interactions";
                         $this.show();
-                    }                   
-                    if($this.attr('grp_name')!="Whole Group"){
-                        $this.hide();
                     }
+					else {
+						$this.hide(); 
+					}
                 }); 
-            } else if(mode=='i'){
-                $('#interaction_modal .btn').each(function() {
-                var $this = $(this);
+            }else if(mode=='i'){
+                $('.interaction').each(function() {
+                var $this = $(this);              
                     if($this.attr('grp_name')=="Individual"){
-                        document.getElementById("intTitle").innerHTML="Individual Actions";
                         $this.show();
-                    }                
-                    if($this.attr('grp_name')!="Individual"){
-                        $this.hide();
                     }
+					else {
+						$this.hide();
+					}
                 });            
-            } else if(mode=='sg'){
-                $('#interaction_modal .btn').each(function() {
+            }else if(mode=='sg'){
+                $('.interaction').each(function() {
                 var $this = $(this);
                     if($this.attr('grp_name')=="Small group/ pairs"){
-                        document.getElementById("intTitle").innerHTML="Small Group Interactions";
                         $this.show();
-                    }                    
-                    if($this.attr('grp_name')!="Small group/ pairs"){
-                        $this.hide();
                     }
+					else {
+						$this.hide();
+					}
                 });            
             }
         }); 
@@ -297,9 +284,8 @@
         }
         });	
         
-        $('#interaction_modal .btn, #gridheader .btn, #teacheractions .btn').click(function() {
+        $('#actorgrid .interaction, #gridheader .btn, #teacheractions .btn').click(function() {
         var $this = $(this);
-        $('#interaction_modal').modal('hide');
         
 	    // Get date, create time variable
 	    var date = new Date();
@@ -335,7 +321,7 @@
 		textArea.scrollTop( textArea[0].scrollHeight - textArea.height()   );	               
                 
 		// Un-select any active buttons (w/ btn-danger class)
-        $('#interaction_modal .btn-danger, #gridheader .btn-danger, #teacheractions .btn-danger').each(function() {
+        $('#interaction_dropdown .btn-danger, #gridheader .btn-danger, #teacheractions .btn-danger').each(function() {
             var oldbtnClass = $(this).attr('btnClass');
             $(this).removeClass('btn-danger').addClass(oldbtnClass);
         });          
