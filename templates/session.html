@@ -47,9 +47,9 @@
     <h4 align = "center">Class mode</h4>
     <table align="center" width = "850">
     <tr>
-        <td align = "center"><button class="btn btn-medium btn-primary" modeId="wg">Whole class</button><td>
-	<td align = "center"><button class="btn btn-medium btn-primary" modeId="sg">Small group/Pairs</button><td>
-	<td align = "center"><button class="btn btn-medium btn-primary" modeId="i">Individual</button><td>
+    <td align = "center"><button class="btn btn-medium btn-black" modeId="wg" id="wg">Whole class</button><td>
+	<td align = "center"><button class="btn btn-medium btn-primary" modeId="sg" id="sg">Small group/Pairs</button><td>
+	<td align = "center"><button class="btn btn-medium btn-primary" modeId="i" id="i">Individual</button><td>
     </tr>
     <tr>
 	<td align = "center"><b>Teacher in charge <br> of instruction</b><td>
@@ -62,12 +62,41 @@
 {% if students %}
 <div class="well">
 <table width="900" align="center">
+
 <tr>
+
+<td>
+<div id = "logger" class="well" style="width: 315px;">    
+<div id="comment" align="left">
+    <form>
+	<div style="width: 350px; height: 150px;">
+	<h4>Session log</h4>
+	<textarea style="width: 300px; height: 100px;" id="commentId"></textarea>
+	</div>
+    </form>
+</div>
+<div id="addNote" align="left">
+    <form>
+	<div style="width: 350px; height: 150px;">
+	<h4>Add note</h4>
+	<textarea style="width: 300px; height: 40px;" id="note"></textarea>
+	<button type="button" id="submitNote" class="btn btn-primary">submit note</button>
+	</div>
+    </form>
+</div>
+</div>
+
+</td>
+
 <td valign="top">
-<div id="teacheractions" style="float:left;">
+<div id="teacheractions">
 <div align = "center">
 <h4>Teacher Actions</h4>
-<table width = "350">
+<table width = "175">
+<tr>
+<td></br></td>
+</tr>
+
 {% for interaction in interactions %}
     {% if interaction.items %}
         {% for item in interaction.items %}
@@ -84,7 +113,7 @@
 </div>
 </td>
 <td valign="top">
-<div style="float:right;">
+<div style="float:right; width: 325px;" >
     <div id = "gridheader"> 
     <h4 style="float:left;">Student actions</h4>
     <table style="float:right;">
@@ -98,24 +127,38 @@
                 {% endif %}
             {% endfor %}
         {% endif %}
-    {% endfor %} 
+    {% endfor %}
     </table>  
-    </div>
+    </div> 
     
-    <table align = "center" bgcolor="#FFFFFF" id="actorgrid"> 
+    <table align = "center" bgcolor="#FFFFFF" id="actorgrid">
     {% for row in students %}
-        <tr>
+        <tr width ="330">
         {% for student in row %}
             <td>
 <div class="dropdown">
 <button class="btn btn-small dropdown-toggle" id = "{{student}}" data-toggle="dropdown" style="width: 32px;">&nbsp;</button>
-  <ul class="dropdown-menu" role="menu">
+  <ul class="dropdown-menu" role="menu" align="center">
 
   {% for interaction in interactions %}
     {% if interaction.items %}
         {% for item in interaction.items %}
            {% if item.name != "Choral response" and item.name != "Shout out" %}
-            		<button class="btn btn-small {{item.color}} interaction" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" style="width: 150px;">{{ item.name }}</button>
+				{% if interaction.group.name == "Whole Group" %} 
+				<li class = "wg">
+            	<button class="btn btn-small {{item.color}} interaction" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" style="width: 150px;">{{ item.name }}</button>
+				</li>
+				{% endif %}
+				{% if interaction.group.name == "Individual" %} 
+				<li class = "i">
+            	<button class="btn btn-small {{item.color}} interaction" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" style="width: 150px;">{{ item.name }}</button>
+				</li>
+				{% endif %}	
+				{% if interaction.group.name == "Small group/ pairs" %} 
+				<li class = "sg">
+            	<button class="btn btn-small {{item.color}} interaction" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" style="width: 150px;">{{ item.name }}</button>
+				</li>
+				{% endif %}			
            {% endif %}
         {% endfor %}
     {% endif %}
@@ -127,6 +170,18 @@
         {% endfor %}
         </tr>
     {% endfor %}
+
+    {% for interaction in interactions %}
+        {% if interaction.items %}
+            {% for item in interaction.items %}
+                {% if interaction.group.name == "Individual"%}
+                    <tr style="display:none;" class="gridreplacement">
+                        <td><button class="btn btn-small {{item.color}} interaction" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" id="Whole class" style="width: 120px;">{{ item.name }}</button></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
     </table>
 
 </div> 
@@ -137,25 +192,7 @@
 </div>
 
 
-<div id = "logger" class="well">    
-<div id="comment" align="center">
-    <form>
-	<div style="width: 750px; height: 150px;">
-	<h4>Session log</h4>
-	<textarea style="width: 700px; height: 100px;" id="commentId"></textarea>
-	</div>
-    </form>
-</div>
-<div id="addNote" align="center">
-    <form>
-	<div style="width: 750px; height: 150px;">
-	<h4>Add note</h4>
-	<textarea style="width: 700px; height: 40px;" id="note"></textarea>
-	<button type="button" id="submitNote" class="btn btn-primary">submit note</button>
-	</div>
-    </form>
-</div>
-</div>
+
 </div>
 
 <div class="modal fade" id="session_start">
@@ -164,8 +201,44 @@
     <h3>Getting started...</h3>
   </div>
   <div class="modal-body">
-  <p>To begin, close this window and choose a <b>class mode</b></p>
+  <p>Remember to estimate the number of students present at sometime during your observation</b></p>
   </div>
+</div>
+
+<div class="modal fade" id="session_end">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+	<h3> Whoops! </h3>
+  </div>
+  <div class="modal-body">
+  <p>You have chosen not to enter the number of students present, this will invalidate certain data output. If you'd like to enter
+the estimated number of students present, write the number in the box below.</p>
+
+<div style="float: left;">
+<b>Estimated number of students: <textarea style="width: 30px; height: 20px;" id="numberofstudents_finalchoice"></textarea></b>
+</div>
+</br>
+</br>
+<button class = "btn btn-primary" id="gotorecords" align="left">Submit</button>
+<button class = "btn btn-primary" id="nothanksproceed" align="left">I do not want to enter a number</button>
+</div>
+</div>
+
+<div class="modal fade" id="session_end_update">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+  </div>
+  <div class="modal-body">
+  <p>If the estimated number of students has changed significantly, please update</p>
+ 
+<div style="float: left;">
+<b>Estimated number of students: <textarea style="width: 30px; height: 20px;" id="numberofstudents_update"></textarea></b>
+</div>
+</br>
+</br>
+<button class = "btn btn-primary" id="updategotorecords" align="left">Submit</button>
+<button class = "btn btn-primary" id="noupdate" align="left">I do not want to change the number</button>
+</div>
 </div>
 
 </div>
@@ -174,9 +247,13 @@
 
 </body>
 <script type="text/javascript">
-	$('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+	//$('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
     $('document').ready(function() {
+	
+	// get session Id
     var sessionId = $('body').attr('id');
+
+	// initialize textbox area for notes
 	var textbox = '';
 	var textArea = $('#commentId');
     
@@ -205,14 +282,14 @@
     };
     document.getElementById("startTime").innerHTML=time;
 
-        
-    mode = 'NA';
+    // Class starts in whole class mode
+    mode = 'wg';
     actor = 'NA';
     
         // This code toggles interaction buttons (so you only see mode-specific interactions in pop up window)
         $('#actorgrid .dropdown-toggle').click(function() {
             var $this = $(this);
-            $(this).addClass('btn-danger');
+            $(this).addClass('btn-black');
             actor = $this.attr('id'); 
             
             // Store counts in the dictionary
@@ -233,56 +310,73 @@
             });
   
             if(mode == 'wg'){
-                $('.interaction').each(function() {
-                var $this = $(this);                 
-                    if($this.attr('grp_name')=="Whole Group"){
-                        $this.show();
-                    }
-					else {
-						$this.hide(); 
-					}
-                }); 
+                $('.wg').each(function() {
+				    $(this).show();             
+                });
+                $('.sg').each(function() {
+				    $(this).hide();             
+                });
+                $('.i').each(function() {
+				    $(this).hide();             
+                });   
             }else if(mode=='i'){
-                $('.interaction').each(function() {
-                var $this = $(this);              
-                    if($this.attr('grp_name')=="Individual"){
-                        $this.show();
-                    }
-					else {
-						$this.hide();
-					}
-                });            
+                $('.wg').each(function() {
+				    $(this).hide();             
+                });
+                $('.sg').each(function() {
+				    $(this).hide();             
+                });
+                $('.i').each(function() {
+				    $(this).show();             
+                });           
             }else if(mode=='sg'){
-                $('.interaction').each(function() {
-                var $this = $(this);
-                    if($this.attr('grp_name')=="Small group/ pairs"){
-                        $this.show();
-                    }
-					else {
-						$this.hide();
-					}
-                });            
+                $('.wg').each(function() {
+				    $(this).hide();             
+                });
+                $('.sg').each(function() {
+				    $(this).show();             
+                });
+                $('.i').each(function() {
+				    $(this).hide();             
+                });           
             }
         }); 
 
         // Mode switches
         $('#modes .btn').click(function() {
-
         var $this = $(this);
         var modeId = $this.attr('modeId');
+		// set mode variable
+        mode = modeId;
         if($this.hasClass('btn-primary')) {  
-        $('#modes .btn-success').each(function() {
-            
+
+			// disable grid if mode is small group, replace grid if not already there, hide individual interaction buttons if still there
+            if(modeId == 'sg') {
+				$('.dropdown-toggle').show();
+				$('.gridreplacement').hide();
+				$('.dropdown-toggle').prop('disabled', true);
+			} else {
+				$('.dropdown-toggle').prop('disabled', false);
+			}
+			// replace grid with interaction buttons if mode is individual
+            if(modeId == 'i') {
+				actor = "Whole class";
+				$('.gridreplacement').show();
+				$('.dropdown-toggle').hide();
+			}
+            if(modeId == 'wg') {
+				$('.gridreplacement').hide();
+				$('.dropdown-toggle').show();
+			}
+
+        $('#modes .btn-black').each(function() {
             var $this = $(this);
-            $this.removeClass('btn-success').addClass('btn-primary');
+            $this.removeClass('btn-black').addClass('btn-primary');
         });    
-        
-            $this.removeClass('btn-primary').addClass('btn-success');
-            mode = modeId;
+            $this.removeClass('btn-primary').addClass('btn-black');
+
         }
-        else if($this.hasClass('btn-success')) {
-            $this.removeClass('btn-success').addClass('btn-primary');
-        }
+
         });	
         
         $('#actorgrid .interaction, #gridheader .btn, #teacheractions .btn').click(function() {
@@ -302,29 +396,38 @@
 	    var grp_name = $this.attr('grp_name');
 	    var btnClass = $this.attr('btnClass');
 	    
+		// hashtable for printing mode variable names
+		var modeNameMap = {}
+		modeNameMap['wg'] = 'Whole Class';
+		modeNameMap['sg'] = 'Small Group/Pairs';
+		modeNameMap['i'] = 'Individual'
+
 		// add next session log entry, scroll to bottom of box
-        if(grp_name == "Teacher Actions"){
+        if(grp_name == 'Teacher Actions'){
 		actor = $this.attr('id');
-		textbox += time+':'+"Teacher"+'-'+grp_name+'-'+int_name+'\n'
+		textbox += time+':'+'Teacher'+'-'+modeNameMap[mode]+'-'+int_name+'\n'
         }
-        else if(int_name == "Choral response") {
+        else if(int_name == 'Choral response') {
 		actor = $this.attr('id');
-        textbox += time+':'+"Whole class"+'-'+grp_name+'-'+int_name+'\n'
+        textbox += time+':'+'Whole class'+'-'+modeNameMap[mode]+'-'+int_name+'\n'
         }
-        else if(int_name == "Shout out") {
+        else if(int_name == 'Shout out') {
 		actor = $this.attr('id');
-        textbox += time+':'+"Whole class"+'-'+grp_name+'-'+int_name+'\n'
+        textbox += time+':'+'Whole class'+'-'+modeNameMap[mode]+'-'+int_name+'\n'
         }        
         else {
-        textbox += time+':'+actor+'-'+grp_name+'-'+int_name+'\n'
+        textbox += time+':'+actor+'-'+modeNameMap[mode]+'-'+int_name+'\n'
         }
-		$("#commentId").val(textbox);
+		$('#commentId').val(textbox);
 		textArea.scrollTop( textArea[0].scrollHeight - textArea.height()   );	               
                 
-		// Un-select any active buttons (w/ btn-danger class)
-        $('#interaction_dropdown .btn-danger, #gridheader .btn-danger, #teacheractions .btn-danger').each(function() {
-            var oldbtnClass = $(this).attr('btnClass');
-            $(this).removeClass('btn-danger').addClass(oldbtnClass);
+		// Un-select any active buttons (w/ btn-black class)
+        $('#actorgrid .btn-black, #gridheader .btn-black, #teacheractions .btn-black').each(function() {
+			// if statement makes sure student buttons stay black
+			if(!$(this).hasClass('dropdown-toggle')) {
+            	var oldbtnClass = $(this).attr('btnClass');
+            	$(this).removeClass('btn-black').addClass(oldbtnClass);
+			}
         });          
         
         // activate record
@@ -335,23 +438,38 @@
             dataType: "json"
             });
             
-        // Change button to red when clicked (btn-danger class)    
-        $this.removeClass(btnClass).addClass('btn-danger');
+        // Change button to red when clicked (btn-black class)    
+        $this.removeClass(btnClass).addClass('btn-black');
         });
 
         $('#endSessionBtn').click(function() {
             var numstud = $('#numberofstudents').val();
+			if(numstud == ''){
+				$('#session_end').modal('show');
+				var numstud = $('#numberofstudents_finalchoice').val();
+			} else if (numstud != '') {
+				$('#session_end_update').modal('show');
+				var numstud = $('#numberofstudents_update').val();
+			}
             // stop sessions 
-            $.ajax({
-                url: "/session/stop/" + sessionId,
-                type: "POST",
-                data: { "numstud": numstud},
-                dataType: "json"
-            }).done(function(data) {
-                window.location.href = "/session/records/" + sessionId;
-            });
+			$('#gotorecords, #nothanksproceed, #updategotorecords, #noupdate').click(function() {
+            	$.ajax({
+                	url: "/session/stop/" + sessionId,
+                	type: "POST",
+                	data: { "numstud": numstud},
+                	dataType: "json"
+            	}).done(function(data) {
+                	window.location.href = "/session/records/" + sessionId;
+            	});
+			});
         });
-	
+		$('#note').keypress(function(event){
+    		if(event.keyCode == 13){
+        		event.preventDefault();
+        		$('#submitNote').click();
+    		}
+		});	
+
         $('#submitNote').click(function() {
 	    var note = $('#note').val();
 	    // Get date, create time variable
