@@ -71,16 +71,21 @@
     <form>
 	<div style="width: 350px; height: 150px;">
 	<h4>Session log</h4>
-	<textarea style="width: 300px; height: 100px;" id="commentId"></textarea>
+	<textarea style="width: 300px; height: 90px;" id="commentId"></textarea>
 	</div>
     </form>
 </div>
 <div id="addNote" align="left">
     <form>
 	<div style="width: 350px; height: 150px;">
-	<h4>Add note</h4>
-	<textarea style="width: 300px; height: 40px;" id="note"></textarea>
-	<button type="button" id="submitNote" class="btn btn-primary">submit note</button>
+	<h4>Note Log</h4>
+	<textarea style="width: 300px; height: 90px;" id="note"></textarea>
+	<table>
+	<tr>
+	<td><textarea style="width: 200px; height: 25px;" id="enternote"></textarea></td>
+	<td valign="baseline"><button type="button" id="submitNote" class="btn btn-primary">submit note</button></td>
+	</tr>
+	</table>
 	</div>
     </form>
 </div>
@@ -253,9 +258,11 @@ the estimated number of students present, write the number in the box below.</p>
 	// get session Id
     var sessionId = $('body').attr('id');
 
-	// initialize textbox area for notes
-	var textbox = '';
+	// initialize textbox area for notes/log
+	var textbox = ''; // var for session log
+	var textboxNotes = ''; // var for notes log
 	var textArea = $('#commentId');
+	var textAreaNotes = $('#note');
     
     // Display alert on session start to prompt user to select a class mode
     $('#session_start').modal('show');
@@ -463,7 +470,7 @@ the estimated number of students present, write the number in the box below.</p>
             	});
 			});
         });
-		$('#note').keypress(function(event){
+		$('#enternote').keypress(function(event){
     		if(event.keyCode == 13){
         		event.preventDefault();
         		$('#submitNote').click();
@@ -471,7 +478,7 @@ the estimated number of students present, write the number in the box below.</p>
 		});	
 
         $('#submitNote').click(function() {
-	    var note = $('#note').val();
+	    var note = $('#enternote').val();
 	    // Get date, create time variable
 	    var date = new Date();
 	    var hours = date.getHours()
@@ -479,10 +486,10 @@ the estimated number of students present, write the number in the box below.</p>
 	    var seconds = date.getSeconds()
 	    var time = hours+":"+minutes+":"+seconds
 
-		// add next session log entry, scroll to bottom of box
-		textbox += time+':'+' '+note+'\n'
-		$("#commentId").val(textbox);
-		textArea.scrollTop( textArea[0].scrollHeight - textArea.height()   );        
+		// add next session log entry, scroll to bottom of box (disabled as of 9.26.14)
+		textboxNotes += time+':'+' '+note+'\n'
+		$("#note").val(textboxNotes);
+		textAreaNotes.scrollTop( textAreaNotes[0].scrollHeight - textAreaNotes.height()   );        
         
         
             $.ajax({
@@ -491,7 +498,7 @@ the estimated number of students present, write the number in the box below.</p>
                 data: {"note": note, "time": time},
                 dataType: "json"
             }).done(function(data) {
-                $("#note").val('');
+                $("#enternote").val(''); 
             });
         });
 	
