@@ -125,9 +125,9 @@
     {% for interaction in interactions %}
         {% if interaction.items %}
             {% for item in interaction.items %}
-                {% if item.name == "Shout out" or item.name == "Choral response" %}
+                {% if item.name == "Shout out" or item.name == "Choral response" or item.name == "Informal assessment (clickers)" or item.name == "Observing phenomenon/ video"%}
                     <tr>
-                        <td><button class="btn btn-small {{item.color}}" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" id="Students" style="width: 120px;">{{ item.name }}</button></td>
+                        <td><button class="btn btn-small {{item.color}}" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" style="width: 120px;">{{ item.name }}</button></td>
                     </tr>
                 {% endif %}
             {% endfor %}
@@ -196,10 +196,10 @@
 </table>
 </div>
 
-
-
 </div>
 
+
+<!--Modals (pop ups) belong here-->
 <div class="modal fade" id="session_start">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
@@ -216,17 +216,18 @@
 	<h3> Whoops! </h3>
   </div>
   <div class="modal-body">
-  <p>You have chosen not to enter the number of students present, this will invalidate certain data output. If you'd like to enter
-the estimated number of students present, write the number in the box below.</p>
 
-<div style="float: left;">
-<b>Estimated number of students: <textarea style="width: 30px; height: 20px;" id="numberofstudents_finalchoice"></textarea></b>
-</div>
-</br>
-</br>
-<button class = "btn btn-primary" id="gotorecords" align="left">Submit</button>
-<button class = "btn btn-primary" id="nothanksproceed" align="left">I do not want to enter a number</button>
-</div>
+<!--  	<p>You have chosen not to enter the number of students present, this will invalidate certain data output. If you'd like to enter-->
+<!--the estimated number of students present, write the number in the box below.</p>-->
+
+		<div style="float: left;">
+			<b>Estimated number of students: <textarea style="width: 30px; height: 20px;" id="numberofstudents_finalchoice"></textarea></b>
+		</div>
+	</br>
+	</br>
+	<button class = "btn btn-primary" id="gotorecords" align="left">Submit</button>
+	<button class = "btn btn-primary" id="nothanksproceed" align="left">I do not want to enter a number</button>
+   </div>
 </div>
 
 <div class="modal fade" id="session_end_update">
@@ -247,12 +248,10 @@ the estimated number of students present, write the number in the box below.</p>
 </div>
 
 </div>
-
 <!-- end of container -->
 
 </body>
 <script type="text/javascript">
-	//$('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
     $('document').ready(function() {
 	
 	// get session Id
@@ -296,25 +295,8 @@ the estimated number of students present, write the number in the box below.</p>
         // This code toggles interaction buttons (so you only see mode-specific interactions in pop up window)
         $('#actorgrid .dropdown-toggle').click(function() {
             var $this = $(this);
-            $(this).addClass('btn-black');
+            //$(this).addClass('btn-black');
             actor = $this.attr('id'); 
-            
-            // Store counts in the dictionary
-            if (actor in sessioncounts){
-                sessioncounts[actor] += 1;
-            document.getElementById(actor).innerHTML=sessioncounts[actor];    
-            } else {
-            sessioncounts[actor] = 1;
-            document.getElementById(actor).innerHTML=sessioncounts[actor];
-            }
-            
-            // Send the actor (student id) to the count handler (stores counts in dict)
-            $.ajax({
-                url: "/session/count/" + sessionId,
-                type: "POST",
-                data: { "actor": actor},
-                dataType: "json"
-            });
   
             if(mode == 'wg'){
                 $('.wg').each(function() {
@@ -351,6 +333,14 @@ the estimated number of students present, write the number in the box below.</p>
 
         // Mode switches
         $('#modes .btn').click(function() {
+
+	    // Get date, create time variable
+	    var date = new Date();
+	    var hours = date.getHours()
+	    var minutes = date.getMinutes()
+	    var seconds = date.getSeconds()
+	    var time = hours+":"+minutes+":"+seconds
+
         var $this = $(this);
         var modeId = $this.attr('modeId');
 		// set mode variable
@@ -359,6 +349,11 @@ the estimated number of students present, write the number in the box below.</p>
 
 			// disable grid if mode is small group, replace grid if not already there, hide individual interaction buttons if still there
             if(modeId == 'sg') {
+
+				textbox += time+':'+'Small groups/pairs'+'\n'
+				$('#commentId').val(textbox);
+				textArea.scrollTop( textArea[0].scrollHeight - textArea.height()   );
+
 				$('.dropdown-toggle').show();
 				$('.gridreplacement').hide();
 				$('.dropdown-toggle').prop('disabled', true);
@@ -388,7 +383,7 @@ the estimated number of students present, write the number in the box below.</p>
         
         $('#actorgrid .interaction, #gridheader .btn, #teacheractions .btn').click(function() {
         var $this = $(this);
-        
+		
 	    // Get date, create time variable
 	    var date = new Date();
 	    var hours = date.getHours()
@@ -415,13 +410,21 @@ the estimated number of students present, write the number in the box below.</p>
 		textbox += time+':'+'Teacher'+'-'+modeNameMap[mode]+'-'+int_name+'\n'
         }
         else if(int_name == 'Choral response') {
-		actor = $this.attr('id');
-        textbox += time+':'+'Whole class'+'-'+modeNameMap[mode]+'-'+int_name+'\n'
+		actor = 'Students';
+        textbox += time+':'+'Students'+'-'+modeNameMap[mode]+'-'+int_name+'\n'
         }
         else if(int_name == 'Shout out') {
-		actor = $this.attr('id');
-        textbox += time+':'+'Whole class'+'-'+modeNameMap[mode]+'-'+int_name+'\n'
-        }        
+		actor = 'Students';
+        textbox += time+':'+'Students'+'-'+modeNameMap[mode]+'-'+int_name+'\n'
+        } 
+        else if(int_name == 'Informal assessment (clickers)') {
+		actor = 'Students';
+        textbox += time+':'+'Students'+'-'+modeNameMap[mode]+'-'+int_name+'\n'
+        }   
+        else if(int_name == 'Observing phenomenon/ video') {
+		actor = 'Students';
+        textbox += time+':'+'Students'+'-'+modeNameMap[mode]+'-'+int_name+'\n'
+        }      
         else {
         textbox += time+':'+actor+'-'+modeNameMap[mode]+'-'+int_name+'\n'
         }
@@ -437,6 +440,29 @@ the estimated number of students present, write the number in the box below.</p>
 			}
         });          
         
+		// This block of code should only execute for 'student' actors
+		if (actor.split(' ')[0] == 'Student') {
+			// Change student button to black once an interaction is clicked
+			$(document.getElementById(actor)).addClass('btn-black');  
+ 
+        	// Store counts in the dictionary
+        	if (actor in sessioncounts){
+            	sessioncounts[actor] += 1;
+        	document.getElementById(actor).innerHTML=sessioncounts[actor];    
+        	} else {
+            	sessioncounts[actor] = 1;
+        	document.getElementById(actor).innerHTML=sessioncounts[actor];
+        	}
+        	// Send the actor (student id) to the count handler (stores counts in dict)
+        	$.ajax({
+            	url: "/session/count/" + sessionId,
+            	type: "POST",
+            	data: { "actor": actor},
+            	dataType: "json"
+        	});
+
+		}
+
         // activate record
         $.ajax({
             url: "/session/record/" + sessionId,
@@ -445,9 +471,11 @@ the estimated number of students present, write the number in the box below.</p>
             dataType: "json"
             });
             
-        // Change button to red when clicked (btn-black class)    
+        // Change button to black when clicked (btn-black class)  
         $this.removeClass(btnClass).addClass('btn-black');
+        $this.removeClass('btn-success').addClass('btn-black');
         });
+
 
         $('#endSessionBtn').click(function() {
             var numstud = $('#numberofstudents').val();
