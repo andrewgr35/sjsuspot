@@ -311,7 +311,7 @@ class LoadDefualtInteractionHandler(webapp2.RequestHandler):
 	# List of interactions (for each group)
 	interactions = [[("Asking a question","btn-lightgreen"),("Answering a question","btn-green"),("Contributes an idea","btn-darkgreen"),("Student presentation","btn-blue"),("Other (please describe in notes)","btn-grey"),("Shout out","btn-success"),("Choral response","btn-success")],
 	                [("Informal assessment (clickers)","btn-green"),("Observing phenomenon/ video","btn-lightblue"),("Writing","btn-grey"), ("Reading","btn-grey"),("Problem solving","btn-grey"),("Other (please describe in notes)","btn-grey")],
-	                [("Discussion with peers","btn-green"),("Observing phenomenon","btn-lightblue"),("Explaining (student presentation)","btn-blue"),("Building/Manipulating","btn-lightpurple"),("Problem solving","btn-lightpurple"),("Reading","btn-grey")],
+	                [("Small group time", "btn-blue"),("Discussion with peers","btn-green"),("Observing phenomenon","btn-lightblue"),("Explaining (student presentation)","btn-blue"),("Building/Manipulating","btn-lightpurple"),("Problem solving","btn-lightpurple"),("Reading","btn-grey")],
 	                [("Explaining","btn-red"),("Clarifying instruction","btn-orange"),("Asking closed question","btn-green"),("Asking open question","btn-lightgreen"),("Waiting","btn-purple"),("Presenting a Demo or Video","btn-lightblue")]]
 	
 	#zip up interactions and groups, this makes it easy to loop through and place the interactions into their corresponding groups
