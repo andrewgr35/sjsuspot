@@ -125,7 +125,18 @@
     {% for interaction in interactions %}
         {% if interaction.items %}
             {% for item in interaction.items %}
-                {% if item.name == "Shout out" or item.name == "Choral response" or item.name == "Informal assessment (clickers)" or item.name == "Observing phenomenon/ video"%}
+                {% if item.name == "Shout out" or item.name == "Choral response"%}
+                    <tr>
+                        <td><button class="btn btn-small {{item.color}}" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" style="width: 120px;">{{ item.name }}</button></td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+    {% for interaction in interactions %}
+        {% if interaction.items %}
+            {% for item in interaction.items %}
+                {% if item.name == "Informal assessment (clickers)" or item.name == "Observing phenomenon/ video"%}
                     <tr>
                         <td><button class="btn btn-small {{item.color}}" btnClass = "{{item.color}}" groupId="{{interaction.group.key.id}}" itemId="{{item.key.id}}" int_name = "{{ item.name }}" grp_name ="{{ interaction.group.name }}" style="width: 120px;">{{ item.name }}</button></td>
                     </tr>
