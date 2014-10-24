@@ -37,7 +37,6 @@ class NewSessionHandler(webapp2.RequestHandler):
     def post(self):
         user = users.get_current_user()
         observee = self.request.get('observee')
-        logging.info("------ " + observee)
         course = self.request.get('course')
         location = self.request.get('location')
 
@@ -95,13 +94,23 @@ class SessionHandler(webapp2.RequestHandler):
                 interactionGroups = query.run()
                 interactions = []
 		choral_response = []
+
                 for interaction in interactionGroups:
                     interactionItems = models.InteractionItem.all().order("order").ancestor(interaction).fetch(1000)
                     interactions.append(InteractionGroupItems(interaction, interactionItems))
+		    for item in interactionItems:
+			if item.name == "Small group time":
+			    groupId = item.parent().key().id()
+			    itemId = item.key().id()
+			    color = item.color
+			    sg_time = [groupId,itemId,color]
+			    
                 self.response.write(riot_utils.render_template('templates/session.html', {
                     'session': session,
                     'interactions': interactions,
-		    'students': student_grid
+		    'students': student_grid,
+		    'sg_time': sg_time
+		    
                 }))
             else:
                 self.response.write({'error': 'invalid session id'})
@@ -129,7 +138,8 @@ class SessionRecordHandler(webapp2.RequestHandler):
 	    actor = self.request.get('actor')
 	    mode = self.request.get('mode')
 	    color = self.request.get('color')
-	    
+	    logging.info("LOOK HERE!!!!!!!!!!!!!!!!!!!")
+	    logging.info(mode)
 	    
             if is_blank(groupId):
                 self.response.write({'error': 'You must provide an interaction group id'})
