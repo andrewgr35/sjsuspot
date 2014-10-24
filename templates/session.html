@@ -48,7 +48,7 @@
     <table align="center" width = "850">
     <tr>
     <td align = "center"><button class="btn btn-medium btn-black" modeId="wg" id="wg">Whole class</button><td>
-	<td align = "center"><button class="btn btn-medium btn-primary" modeId="sg" id="sg">Small group/Pairs</button><td>
+	<td align = "center"><button class="btn btn-medium btn-primary" modeId="sg" id="sg" groupId = {{sg_time.0}} itemId = {{sg_time.1}} color = {{sg_time.2}}>Small group/Pairs</button><td>
 	<td align = "center"><button class="btn btn-medium btn-primary" modeId="i" id="i">Individual</button><td>
     </tr>
     <tr>
@@ -361,6 +361,19 @@
 			// disable grid if mode is small group, replace grid if not already there, hide individual interaction buttons if still there
             if(modeId == 'sg') {
 
+				//temp code to record small group time
+				var groupId = $this.attr('groupId')
+				var itemId = $this.attr('itemId')
+				var color = $this.attr('color')
+				var actor = 'Small group/ pairs'
+
+				$.ajax({
+            		url: "/session/record/" + sessionId,
+            		type: "POST",
+           	 		data: {"groupId": groupId, "itemId": itemId, "actor": actor, "mode":mode, "color":color},
+            		dataType: "json"
+           		});
+
 				textbox += time+':'+'Small groups/pairs'+'\n'
 				$('#commentId').val(textbox);
 				textArea.scrollTop( textArea[0].scrollHeight - textArea.height()   );
@@ -368,6 +381,7 @@
 				$('.dropdown-toggle').show();
 				$('.gridreplacement').hide();
 				$('.dropdown-toggle').prop('disabled', true);
+
 			} else {
 				$('.dropdown-toggle').prop('disabled', false);
 			}
