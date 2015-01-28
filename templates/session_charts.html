@@ -26,6 +26,20 @@
 </div>
 
 <div align = "center">
+<b>Student Participation Map</b>
+</div>
+<table align = "center" bgcolor="#FFFFFF">
+    {% for row in session_count_map %}
+        <tr width ="330">
+        {% for student in row %}
+            <td> <button class="btn btn-small {{student.1}} style="width: 150px; disabled">{{student.0}}</button> </td>
+		{% endfor %}
+		</tr>
+	{% endfor %}
+</table>
+
+
+<div align = "center">
 <b>Student actions timeline</b>
 <div id="StudentsActions" style="width: 900px; height: 100px;"></div>
 <b>Teacher actions timeline</b>
