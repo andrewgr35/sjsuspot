@@ -415,6 +415,18 @@ class SessionChartsHandler(webapp2.RequestHandler):
 	user = users.get_current_user()
         if user: 
 	    session = models.Session.get_by_id(int(sessionId)) 
+	    #logging.info(sorted(session.studentcounts))
+	    session_count_array = []
+	    for i in range(0,100):
+		if ('Student' + ' '+ str(i) ) in session.studentcounts:
+		    session_count_array.append( ( ( session.studentcounts[ ('Student' + ' '+ str(i) ) ] ), 'btn-black' ) )
+		else:
+		    session_count_array.append((0,'btn-grey'))
+	    session_count_map = []
+	    for i in range(0,100,10):
+		session_count_map.append( (session_count_array[i:i+10] ) )
+	    logging.info(session_count_map)
+
 	    if session and session.observer == user.email():
 		session_records = models.SessionRecord.all().ancestor(session).fetch(1000)
 		session_records.sort(key = lambda x:x.startTime)
@@ -554,7 +566,8 @@ class SessionChartsHandler(webapp2.RequestHandler):
 		    'student_plot': student_plot,
 		    'student_teacher_plot': student_teacher_plot,
 		    'student_activity_plot': student_activity_plot,
-		    'teacher_activity_plot': teacher_activity_plot
+		    'teacher_activity_plot': teacher_activity_plot,
+		    'session_count_map': session_count_map
 		}))
 		
 	    if not session:
