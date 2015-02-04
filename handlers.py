@@ -417,7 +417,7 @@ class SessionChartsHandler(webapp2.RequestHandler):
 	    session = models.Session.get_by_id(int(sessionId)) 
 	    #logging.info(sorted(session.studentcounts))
 	    session_count_array = []
-	    for i in range(0,100):
+	    for i in range(1,101):
 		if ('Student' + ' '+ str(i) ) in session.studentcounts:
 		    session_count_array.append( ( ( session.studentcounts[ ('Student' + ' '+ str(i) ) ] ), 'btn-black' ) )
 		else:
@@ -425,7 +425,6 @@ class SessionChartsHandler(webapp2.RequestHandler):
 	    session_count_map = []
 	    for i in range(0,100,10):
 		session_count_map.append( (session_count_array[i:i+10] ) )
-	    logging.info(session_count_map)
 
 	    if session and session.observer == user.email():
 		session_records = models.SessionRecord.all().ancestor(session).fetch(1000)
