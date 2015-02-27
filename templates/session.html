@@ -273,9 +273,10 @@
 	var textboxNotes = ''; // var for notes log
 	var textArea = $('#commentId');
 	var textAreaNotes = $('#note');
-	// Disable editing in the note log (so users cant erase log info)
+
+	// Disable editing in the note and session log (so users cant erase log info)
 	document.getElementById("note").disabled = true;
-    
+    document.getElementById("commentId").disabled = true;
     // Display alert on session start to prompt user to select a class mode
     $('#session_start').modal('show');
     
