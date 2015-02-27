@@ -4,9 +4,37 @@ import webapp2
 import json
 import logging
 import datetime
+import time
 from types import *
 
 from google.appengine.api import users
+
+''' This converts UTC to PST time '''
+class Pacific_tzinfo(datetime.tzinfo):
+    """Implementation of the Pacific timezone."""
+    def utcoffset(self, dt):
+        return datetime.timedelta(hours=-8) + self.dst(dt)
+
+    def _FirstSunday(self, dt):
+        """First Sunday on or after dt."""
+        return dt + datetime.timedelta(days=(6-dt.weekday()))
+
+    def dst(self, dt):
+        # 2 am on the second Sunday in March
+        dst_start = self._FirstSunday(datetime.datetime(dt.year, 3, 8, 2))
+        # 1 am on the first Sunday in November
+        dst_end = self._FirstSunday(datetime.datetime(dt.year, 11, 1, 1))
+
+        if dst_start <= dt.replace(tzinfo=None) < dst_end:
+            return datetime.timedelta(hours=1)
+        else:
+            return datetime.timedelta(hours=0)
+    def tzname(self, dt):
+        if self.dst(dt) == datetime.timedelta(hours=0):
+            return "PST"
+        else:
+            return "PDT"
+
 
 """
     This is the C part of MVC. Put all logic for controllers here. Url
@@ -60,6 +88,14 @@ class SessionListHandler(webapp2.RequestHandler):
         if user:
             sessions = models.get_sessions_for_user(user)
 	    sessions.sort(key=lambda x: x.date)
+	    
+	    # Convert from UTC to PST
+	    for session in sessions:
+		date_utc = session.date
+		date_pst = datetime.datetime.fromtimestamp(time.mktime(date_utc.timetuple()), Pacific_tzinfo())
+		session.date = date_pst
+		session.put()
+		
             self.response.write(riot_utils.render_template('templates/sessions.html', {
                 'sessions': sessions
             }))
@@ -138,8 +174,7 @@ class SessionRecordHandler(webapp2.RequestHandler):
 	    actor = self.request.get('actor')
 	    mode = self.request.get('mode')
 	    color = self.request.get('color')
-	    logging.info("LOOK HERE!!!!!!!!!!!!!!!!!!!")
-	    logging.info(mode)
+
 	    
             if is_blank(groupId):
                 self.response.write({'error': 'You must provide an interaction group id'})
@@ -415,7 +450,6 @@ class SessionChartsHandler(webapp2.RequestHandler):
 	user = users.get_current_user()
         if user: 
 	    session = models.Session.get_by_id(int(sessionId)) 
-	    #logging.info(sorted(session.studentcounts))
 	    session_count_array = []
 	    for i in range(1,101):
 		if ('Student' + ' '+ str(i) ) in session.studentcounts:
