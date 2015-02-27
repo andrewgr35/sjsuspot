@@ -264,7 +264,7 @@
 </body>
 <script type="text/javascript">
     $('document').ready(function() {
-	
+
 	// get session Id
     var sessionId = $('body').attr('id');
 
@@ -273,6 +273,8 @@
 	var textboxNotes = ''; // var for notes log
 	var textArea = $('#commentId');
 	var textAreaNotes = $('#note');
+	// Disable editing in the note log (so users cant erase log info)
+	document.getElementById("note").disabled = true;
     
     // Display alert on session start to prompt user to select a class mode
     $('#session_start').modal('show');
@@ -451,6 +453,10 @@
         textbox += time+':'+'Students'+'-'+modeNameMap[mode]+'-'+int_name+'\n'
         }      
         else {
+			// actor property will not be set to anything for individual, because no actor ID is attached to the buttons (when you re-structure this page, make sure to do this!)
+			if (grp_name == 'Individual') {
+				actor = 'Students';
+			}
         textbox += time+':'+actor+'-'+modeNameMap[mode]+'-'+int_name+'\n'
         }
 		$('#commentId').val(textbox);
