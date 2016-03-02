@@ -534,7 +534,7 @@ class SessionChartsHandler(webapp2.RequestHandler):
 			student_teacher["Students"] += total_seconds
 			# add up student interaction times
 			
-			if int_item in student_activity:
+			if (int_item,color) in student_activity:
 			    student_activity[(int_item,color)] += total_seconds
 			else:
 			    student_activity[(int_item,color)] = total_seconds
@@ -552,7 +552,7 @@ class SessionChartsHandler(webapp2.RequestHandler):
 		
 		    elif actor == "Teacher": 
 			student_teacher["Teacher"] += total_seconds # Add time into student teacher times
-			if int_item in teacher_activity:
+			if (int_item,color) in teacher_activity:
 			    teacher_activity[(int_item,color)] += total_seconds
 			else:
 			    teacher_activity[(int_item,color)] = total_seconds
